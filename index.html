@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Bloom" />
+  <meta name="theme-color" content="#E8A0BF" />
+  <meta name="description" content="Bloom — a beautiful pastel habit tracker" />
+  <title>Bloom — Habit Tracker</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="header-brand">
+      <span class="header-logo">🌸</span>
+      <span class="header-title">Bloom</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="install-btn" style="display:none" title="Install App">📲</button>
+      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- HOME PAGE                                                    -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <section class="page active" id="page-home">
+
+    <!-- Greeting card -->
+    <div class="greeting-card card">
+      <div class="greeting-meta" id="greeting-date"></div>
+      <div class="greeting-name" id="greeting-text">Good morning! ✨</div>
+      <div class="greeting-quote" id="greeting-quote"></div>
+      <div class="greeting-progress">
+        <div class="progress-ring-wrap">
+          <svg width="76" height="76" viewBox="0 0 76 76">
+            <circle cx="38" cy="38" r="32" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="6"/>
+            <circle id="ring-circle" cx="38" cy="38" r="32" fill="none"
+                    stroke="white" stroke-width="6"
+                    stroke-linecap="round"
+                    style="transition: stroke-dashoffset 0.6s cubic-bezier(0.34,1.56,0.64,1)"/>
+          </svg>
+          <div class="pct-label" id="ring-pct-label">0%</div>
+        </div>
+        <div class="progress-text" id="progress-text">
+          <strong>Start your day!</strong>
+          Check off habits as you complete them
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-value" id="stat-streak">0</div>
+        <div class="stat-label">Best Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value" id="stat-month">0%</div>
+        <div class="stat-label">This Month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-label">Total Done</div>
+      </div>
+    </div>
+
+    <!-- Today's habits -->
+    <div>
+      <div class="habits-header">
+        <div class="habits-title">Today's Habits</div>
+        <button class="add-btn" onclick="openAddHabit()">+ Add</button>
+      </div>
+    </div>
+    <div id="today-habits" style="display:flex;flex-direction:column;gap:8px"></div>
+
+    <!-- Water & Mood -->
+    <div class="tracker-row">
+      <div class="mini-tracker">
+        <div class="mini-tracker-header">
+          <span class="mini-tracker-icon">💧</span>
+          <span class="mini-tracker-label">Water</span>
+        </div>
+        <div class="water-cups" id="water-cups"></div>
+      </div>
+      <div class="mini-tracker">
+        <div class="mini-tracker-header">
+          <span class="mini-tracker-icon">🌈</span>
+          <span class="mini-tracker-label">Mood</span>
+        </div>
+        <div class="mood-btns">
+          <button class="mood-btn" data-mood="0" onclick="setMood(0)">😢</button>
+          <button class="mood-btn" data-mood="1" onclick="setMood(1)">😕</button>
+          <button class="mood-btn" data-mood="2" onclick="setMood(2)">😐</button>
+          <button class="mood-btn" data-mood="3" onclick="setMood(3)">🙂</button>
+          <button class="mood-btn" data-mood="4" onclick="setMood(4)">😄</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- CALENDAR PAGE                                                -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <section class="page" id="page-calendar">
+
+    <div class="card">
+      <div class="calendar-nav">
+        <button class="cal-arrow" onclick="calPrev()">‹</button>
+        <div class="cal-month" id="cal-month-label"></div>
+        <button class="cal-arrow" onclick="calNext()">›</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <div>
+      <div class="section-label" style="margin-bottom:8px">Filter by habit</div>
+      <div class="filter-tabs" id="filter-tabs"></div>
+    </div>
+
+    <!-- Day detail injected here by JS -->
+
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- STATS PAGE                                                   -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <section class="page" id="page-stats">
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-value" id="stat-streak">—</div>
+        <div class="stat-label">Best Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value" id="stat-month">—</div>
+        <div class="stat-label">This Month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-label">Total Done</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">📊 This Week</div>
+      <div class="chart-wrap">
+        <canvas id="week-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">🌈 Mood This Week</div>
+      <div class="chart-wrap">
+        <canvas id="mood-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="chart-title">🌸 Habit Performance (This Month)</div>
+      <div class="habit-analytics-list" id="habit-analytics-list"></div>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- JOURNAL PAGE                                                 -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <section class="page" id="page-journal">
+
+    <div class="card">
+      <div class="journal-date-nav">
+        <button class="cal-arrow" onclick="prevJournalDay()">‹</button>
+        <div class="journal-date-label" id="journal-date-label"></div>
+        <button class="cal-arrow" onclick="nextJournalDay()">›</button>
+      </div>
+      <textarea
+        class="journal-textarea"
+        id="journal-input"
+        placeholder="How was your day? What are you grateful for? Any reflections... 🌸"
+        rows="6"></textarea>
+      <div class="journal-meta" id="journal-chars">0 characters</div>
+      <button class="save-btn" style="margin-top:12px" onclick="saveJournal()">Save Entry 💾</button>
+    </div>
+
+    <div class="section-label">Past Entries</div>
+    <div class="journal-entries" id="journal-entries"></div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- BOTTOM NAV                                                   -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="home">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" data-page="calendar">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">Calendar</span>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" data-page="stats">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Stats</span>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" data-page="journal">
+      <span class="nav-icon">📓</span>
+      <span class="nav-label">Journal</span>
+      <div class="nav-dot"></div>
+    </button>
+  </nav>
+
+</div><!-- /#app -->
+
+<!-- ── Habit Modal ──────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">New Habit ✨</div>
+
+    <div class="form-group">
+      <label class="form-label">HABIT NAME</label>
+      <input class="form-input" id="habit-name-input" type="text"
+             placeholder="e.g. Morning Run, Read 20 mins…"
+             onkeydown="if(event.key==='Enter') saveHabit()" maxlength="40"/>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">CHOOSE AN EMOJI</label>
+      <div class="emoji-picker" id="emoji-picker"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">ACCENT COLOR</label>
+      <div class="color-picker" id="color-picker"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveHabit()">Save Habit 🌸</button>
+    </div>
+    <button class="btn-danger" id="delete-habit-btn" style="display:none"
+            onclick="deleteEditHabit()">🗑️ Delete Habit</button>
+  </div>
+</div>
+
+<!-- ── Toast ─────────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+<script>
+  // Set greeting date
+  document.getElementById('greeting-date').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+  // Calendar nav
+  window.calPrev = () => {
+    state.calDate.setMonth(state.calDate.getMonth()-1);
+    state.selectedDay = null;
+    renderCalendar();
+  };
+  window.calNext = () => {
+    const now = new Date();
+    if (state.calDate.getFullYear() === now.getFullYear() && state.calDate.getMonth() >= now.getMonth()) return;
+    state.calDate.setMonth(state.calDate.getMonth()+1);
+    state.selectedDay = null;
+    renderCalendar();
+  };
+
+  // Delete from modal
+  window.deleteEditHabit = () => {
+    if (state.editHabit) {
+      if (!confirm('Delete this habit?')) return;
+      deleteHabit(state.editHabit);
+      closeModal();
+    }
+  };
+
+  // Show delete btn when editing
+  const origOpenEdit = window.openEditHabit;
+  window.openEditHabit = (id) => {
+    origOpenEdit(id);
+    document.getElementById('delete-habit-btn').style.display = 'block';
+  };
+  const origOpenAdd = window.openAddHabit;
+  window.openAddHabit = () => {
+    origOpenAdd();
+    document.getElementById('delete-habit-btn').style.display = 'none';
+  };
+</script>
+</body>
+</html>
